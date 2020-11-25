@@ -7,10 +7,16 @@ namespace RentalKendaraan_084.Models
 {
     public partial class JenisKendaraan
     {
+        public JenisKendaraan()
+        {
+            Kendaraan = new HashSet<Kendaraan>();
+        }
+
         public int IdJenisKendaraan { get; set; }
-        [Required(ErrorMessage ="Nama jenis kendaraan wajib diisi")]
+
+        [Required(ErrorMessage = "Nama Jenis Kendaraan tidak boleh kosong!!")]
         public string NamaJenisKendaraan { get; set; }
 
-        public Kendaraan IdJenisKendaraanNavigation { get; set; }
+        public ICollection<Kendaraan> Kendaraan { get; set; }
     }
 }

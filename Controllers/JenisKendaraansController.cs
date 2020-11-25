@@ -19,10 +19,65 @@ namespace RentalKendaraan_084.Controllers
         }
 
         // GET: JenisKendaraans
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string ktsd, string searchString, string sortOrder, string currentFilter, int? pageNumber)
         {
-            var rentKendaraanContext = _context.JenisKendaraan.Include(j => j.IdJenisKendaraanNavigation);
-            return View(await rentKendaraanContext.ToListAsync());
+            //buat list menyimpan ketersediaan
+            var ktsdList = new List<string>();
+            //Query mengambil data
+            var ktsdQuery = from d in _context.JenisKendaraan orderby d.NamaJenisKendaraan select d.NamaJenisKendaraan;
+
+            ktsdList.AddRange(ktsdQuery.Distinct());
+
+            //untuk menampilkan di view
+            ViewBag.ktsd = new SelectList(ktsdList);
+
+            //panggil db context
+            var menu = from m in _context.JenisKendaraan select m;
+
+            //untuk memilih dropdownlist ketersediaan
+            if (!string.IsNullOrEmpty(ktsd))
+            {
+                menu = menu.Where(x => x.NamaJenisKendaraan == ktsd);
+            }
+
+            //untuk search data
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                menu = menu.Where(s => s.NamaJenisKendaraan.Contains(searchString));
+            }
+
+            //untuk sorting
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    menu = menu.OrderByDescending(s => s.NamaJenisKendaraan);
+                    break;
+                default:
+                    menu = menu.OrderBy(s => s.NamaJenisKendaraan);
+                    break;
+            }
+
+            //membuat pagedList
+            ViewData["CurrentSort"] = sortOrder;
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            //definisi jumlah data pada halaman
+            int pageSize = 5;
+
+            return View(await PaginatedList<JenisKendaraan>.CreateAsync(menu.AsNoTracking(), pageNumber ?? 1, pageSize));
+            //return View(await _context.JenisKendaraan.ToListAsync());
         }
 
         // GET: JenisKendaraans/Details/5
@@ -34,7 +89,6 @@ namespace RentalKendaraan_084.Controllers
             }
 
             var jenisKendaraan = await _context.JenisKendaraan
-                .Include(j => j.IdJenisKendaraanNavigation)
                 .FirstOrDefaultAsync(m => m.IdJenisKendaraan == id);
             if (jenisKendaraan == null)
             {
@@ -47,7 +101,6 @@ namespace RentalKendaraan_084.Controllers
         // GET: JenisKendaraans/Create
         public IActionResult Create()
         {
-            ViewData["IdJenisKendaraan"] = new SelectList(_context.Kendaraan, "IdKendaraan", "IdKendaraan");
             return View();
         }
 
@@ -64,7 +117,6 @@ namespace RentalKendaraan_084.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdJenisKendaraan"] = new SelectList(_context.Kendaraan, "IdKendaraan", "IdKendaraan", jenisKendaraan.IdJenisKendaraan);
             return View(jenisKendaraan);
         }
 
@@ -81,7 +133,6 @@ namespace RentalKendaraan_084.Controllers
             {
                 return NotFound();
             }
-            ViewData["IdJenisKendaraan"] = new SelectList(_context.Kendaraan, "IdKendaraan", "IdKendaraan", jenisKendaraan.IdJenisKendaraan);
             return View(jenisKendaraan);
         }
 
@@ -117,7 +168,6 @@ namespace RentalKendaraan_084.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdJenisKendaraan"] = new SelectList(_context.Kendaraan, "IdKendaraan", "IdKendaraan", jenisKendaraan.IdJenisKendaraan);
             return View(jenisKendaraan);
         }
 
@@ -130,7 +180,6 @@ namespace RentalKendaraan_084.Controllers
             }
 
             var jenisKendaraan = await _context.JenisKendaraan
-                .Include(j => j.IdJenisKendaraanNavigation)
                 .FirstOrDefaultAsync(m => m.IdJenisKendaraan == id);
             if (jenisKendaraan == null)
             {

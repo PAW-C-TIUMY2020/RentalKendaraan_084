@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -9,14 +9,23 @@ namespace RentalKendaraan_084.Models
     public partial class Pengembalian
     {
         public int IdPengembalian { get; set; }
-        [Required(ErrorMessage = "Tanggal peminjaman wajib diisi")]
-        public DateTime? TglPeminjaman { get; set; }
+
+        [Required(ErrorMessage = "Tanggal pengembalian tidak boleh kosong!!")]
+        public DateTime? TglPengembalian { get; set; }
+
+        [Required(ErrorMessage = "Peminjaman tidak boleh kosong!!")]
         public int? IdPeminjaman { get; set; }
+
+        [Required(ErrorMessage = "Kondisi tidak boleh kosong!!")]
         public int? IdKondisi { get; set; }
-        [Required(ErrorMessage = "Denda peminjaman wajib diisi")]
+
+        [Required(ErrorMessage = "Denda tidak boleh kosong!!")]
         public int? Denda { get; set; }
 
-        public KondisiKendaraan IdPeminjamanNavigation { get; set; }
-        public Peminjaman Peminjaman { get; set; }
+        [DisplayName("Kondisi")]
+        public KondisiKendaraan IdKondisiNavigation { get; set; }
+
+        [DisplayName("Peminjaman")]
+        public Peminjaman IdPeminjamanNavigation { get; set; }
     }
 }

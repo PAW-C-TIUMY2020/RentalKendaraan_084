@@ -19,10 +19,65 @@ namespace RentalKendaraan_084.Controllers
         }
 
         // GET: Jaminans
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string ktsd, string searchString, string sortOrder, string currentFilter, int? pageNumber)
         {
-            var rentKendaraanContext = _context.Jaminan.Include(j => j.IdJaminanNavigation);
-            return View(await rentKendaraanContext.ToListAsync());
+            //buat list menyimpan ketersediaan
+            var ktsdList = new List<string>();
+            //Query mengambil data
+            var ktsdQuery = from d in _context.Jaminan orderby d.NamaJaminan select d.NamaJaminan;
+
+            ktsdList.AddRange(ktsdQuery.Distinct());
+
+            //untuk menampilkan di view
+            ViewBag.ktsd = new SelectList(ktsdList);
+
+            //panggil db context
+            var menu = from m in _context.Jaminan select m;
+
+            //untuk memilih dropdownlist ketersediaan
+            if (!string.IsNullOrEmpty(ktsd))
+            {
+                menu = menu.Where(x => x.NamaJaminan == ktsd);
+            }
+
+            //untuk search data
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                menu = menu.Where(s => s.NamaJaminan.Contains(searchString));
+            }
+
+            //untuk sorting
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    menu = menu.OrderByDescending(s => s.NamaJaminan);
+                    break;
+                default:
+                    menu = menu.OrderBy(s => s.NamaJaminan);
+                    break;
+            }
+
+            //membuat pagedList
+            ViewData["CurrentSort"] = sortOrder;
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            //definisi jumlah data pada halaman
+            int pageSize = 5;
+
+            return View(await PaginatedList<Jaminan>.CreateAsync(menu.AsNoTracking(), pageNumber ?? 1, pageSize));
+            //return View(await _context.Jaminan.ToListAsync());
         }
 
         // GET: Jaminans/Details/5
@@ -34,7 +89,6 @@ namespace RentalKendaraan_084.Controllers
             }
 
             var jaminan = await _context.Jaminan
-                .Include(j => j.IdJaminanNavigation)
                 .FirstOrDefaultAsync(m => m.IdJaminan == id);
             if (jaminan == null)
             {
@@ -47,7 +101,6 @@ namespace RentalKendaraan_084.Controllers
         // GET: Jaminans/Create
         public IActionResult Create()
         {
-            ViewData["IdJaminan"] = new SelectList(_context.Peminjaman, "IdPeminjaman", "IdPeminjaman");
             return View();
         }
 
@@ -64,7 +117,6 @@ namespace RentalKendaraan_084.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdJaminan"] = new SelectList(_context.Peminjaman, "IdPeminjaman", "IdPeminjaman", jaminan.IdJaminan);
             return View(jaminan);
         }
 
@@ -81,7 +133,6 @@ namespace RentalKendaraan_084.Controllers
             {
                 return NotFound();
             }
-            ViewData["IdJaminan"] = new SelectList(_context.Peminjaman, "IdPeminjaman", "IdPeminjaman", jaminan.IdJaminan);
             return View(jaminan);
         }
 
@@ -117,7 +168,6 @@ namespace RentalKendaraan_084.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdJaminan"] = new SelectList(_context.Peminjaman, "IdPeminjaman", "IdPeminjaman", jaminan.IdJaminan);
             return View(jaminan);
         }
 
@@ -130,7 +180,6 @@ namespace RentalKendaraan_084.Controllers
             }
 
             var jaminan = await _context.Jaminan
-                .Include(j => j.IdJaminanNavigation)
                 .FirstOrDefaultAsync(m => m.IdJaminan == id);
             if (jaminan == null)
             {

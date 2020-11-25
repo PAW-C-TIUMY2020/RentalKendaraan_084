@@ -6,10 +6,16 @@ namespace RentalKendaraan_084.Models
 {
     public partial class Gender
     {
+        public Gender()
+        {
+            Customer = new HashSet<Customer>();
+        }
+
         public int IdGender { get; set; }
-        [Required(ErrorMessage ="Nama Gender wajib diisi")]
+
+        [Required(ErrorMessage = "Nama Gender tidak boleh kosong!!")]
         public string NamaGender { get; set; }
 
-        public Customer IdGenderNavigation { get; set; }
+        public ICollection<Customer> Customer { get; set; }
     }
 }

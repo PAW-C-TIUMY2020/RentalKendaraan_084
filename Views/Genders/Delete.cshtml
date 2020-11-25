@@ -1,8 +1,7 @@
 ﻿@model RentalKendaraan_084.Models.Gender
 
-@{
-    ViewData["Title"] = "Delete";
-}
+
+@{ ViewData["Title"] = "Delete"; }
 
 <h2>Delete</h2>
 
@@ -17,14 +16,8 @@
         <dd>
             @Html.DisplayFor(model => model.NamaGender)
         </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.IdGenderNavigation)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.IdGenderNavigation.IdCustomer)
-        </dd>
     </dl>
-    
+
     <form asp-action="Delete">
         <input type="hidden" asp-for="IdGender" />
         <input type="submit" value="Delete" class="btn btn-default" /> |

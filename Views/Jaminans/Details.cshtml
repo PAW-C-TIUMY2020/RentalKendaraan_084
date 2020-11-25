@@ -1,8 +1,5 @@
 ﻿@model RentalKendaraan_084.Models.Jaminan
-
-@{
-    ViewData["Title"] = "Details";
-}
+@{ ViewData["Title"] = "Details"; }
 
 <h2>Details</h2>
 
@@ -15,12 +12,6 @@
         </dt>
         <dd>
             @Html.DisplayFor(model => model.NamaJaminan)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.IdJaminanNavigation)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.IdJaminanNavigation.IdPeminjaman)
         </dd>
     </dl>
 </div>
