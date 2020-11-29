@@ -19,7 +19,7 @@ namespace RentalKendaraan_084.Models
         public int IdPeminjaman { get; set; }
 
         [DisplayName("Tanggal Peminjaman")]
-        [Required(ErrorMessage = "Tanggal peminjaman wajib diisi!!")]
+        //[Required(ErrorMessage = "Tanggal peminjaman wajib diisi!!")]
         public DateTime? TglPeminjamaan { get; set; }
 
         [DisplayName("Kendaraan")]
